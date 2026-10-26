@@ -4,6 +4,36 @@ from supabase import create_client, Client
 # Page configuration
 st.set_page_config(page_title="Gestion des Membres", page_icon="👥", layout="wide")
 
+# ---------------------------------------------------------
+# GESTION DE LA CONNEXION (BARRIÈRE DE SÉCURITÉ)
+# ---------------------------------------------------------
+if "authentifie" not in st.session_state:
+  st.session_state.authentifie = False
+
+if not st.session_state.authentifie:
+  st.title("🔒 Espace Restreint - Bureau de l'Association")
+  st.info(
+      "Cet espace est réservé aux membres du bureau. Veuillez entrer le mot de"
+      " passe d'accès."
+  )
+
+  with st.form("form_connexion"):
+    password_saisi = st.text_input(
+        "Mot de passe administrateur", type="password"
+    )
+    submit_btn = st.form_submit_button("Se connecter")
+
+    if submit_btn:
+      if password_saisi == st.secrets.get("ADMIN_PASSWORD"):
+        st.session_state.authentifie = True
+        st.success("Connexion réussie !")
+        st.rerun()
+      else:
+        st.error("Mot de passe incorrect.")
+
+  # Stoppe l'exécution du reste du code si l'utilisateur n'est pas connecté
+  st.stop()
+
 # Connexion à Supabase via les secrets Streamlit
 @st.cache_resource
 def init_connection():
